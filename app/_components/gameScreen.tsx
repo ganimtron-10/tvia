@@ -1,7 +1,7 @@
-import Tdle from "./_tdle/tdle";
+import WalletConnect from "./_tdle/walletConnect";
 
 export default function GameScreen() {
     return <div>
-        <Tdle></Tdle>
+        <WalletConnect />
     </div>
 }
