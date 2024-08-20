@@ -9,7 +9,7 @@ interface CharBoxProps {
     isCorrectChar?: boolean
 }
 
-export default function keyChar(props: CharBoxProps) {
+export default function KeyChar(props: CharBoxProps) {
     const { handleInput } = useTdleContext();
     const { character, isAtCorrectPos, isCorrectChar } = props
     const bgColor = isAtCorrectPos ? "bg-green-500" : isCorrectChar ? "bg-yellow-500" : "bg-stone-700";
