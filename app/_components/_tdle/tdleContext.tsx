@@ -55,6 +55,18 @@ export function TdleProvider({ children }: { children: ReactNode }) {
     const [guessIndex, setGuessIndex] = useState(0);
     const todaysWord = generateTodaysWord();
 
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            handleInput(event.key.toLowerCase());
+        };
+
+        window.addEventListener('keyup', handleKeyDown);
+
+        return () => {
+            window.removeEventListener('keyup', handleKeyDown);
+        };
+    }, [handleInput]);
+
     function generateTodaysWord() {
         const today = new Date();
 
