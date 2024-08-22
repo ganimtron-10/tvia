@@ -1,38 +1,8 @@
-// import { useState, createContext, useContext, ReactNode } from "react";
-// import Tdle from "./tdle";
-// import { Root } from "postcss";
-
-// interface TdleContextType {
-//     curmessage: string
-//     setCurGuess: (newState: string) => void;
-//     guesses: Array<string>
-//     setGuesses: (newState: Array<string>) => void;
-//     guessIndex: number
-//     setGuessIndexrent: (newState: number) => void;
-// }
-
-// const TdleContext = createContext(null);
-
-// export function TdleProvider({ children }: { children: ReactNode }) {
-//     const [message, setCurGuess] = useState('');
-//     const [guesses, setGuesses] = useState([]);
-//     const [guessIndex, setGuessIndex] = useState(0);
-
-//     const value: TdleContextType = { message, setCurGuess, guesses, setGuesses, guessIndex, setGuessIndex }
-//     return <TdleContext.Provider value={value}>
-//         {children}
-//     </TdleContext.Provider>
-// }
-
-// export const useTdleContext = () => useContext(TdleContext);
-
 'use client'
 
-import { useState, createContext, useContext, ReactNode, useEffect, EventHandler } from "react";
+import { useState, createContext, useContext, ReactNode, useEffect } from "react";
 import validWords from './validWords.json'
-import { trace } from "console";
 import crypto from 'crypto';
-import { toASCII } from "punycode";
 
 interface TdleContextType {
     message: string;
@@ -42,8 +12,8 @@ interface TdleContextType {
     guessIndex: number;
     setGuessIndex: (newState: number) => void;
     handleInput: (key: string) => void;
-    hasChar: (char: string, idx: number) => boolean;
-    sameChar: (char: string, i: number, idx: number) => boolean;
+    hasChar: (char: string, idx: number, isKeyChar?: boolean) => boolean;
+    sameChar: (char: string, i: number, idx: number, isKeyChar?: boolean) => boolean;
 }
 
 const TdleContext = createContext<TdleContextType | null>(null);
@@ -54,6 +24,18 @@ export function TdleProvider({ children }: { children: ReactNode }) {
     const [guesses, setGuesses] = useState<string[]>(Array(6).fill(''));
     const [guessIndex, setGuessIndex] = useState(0);
     const todaysWord = generateTodaysWord();
+
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            handleInput(event.key.toLowerCase());
+        };
+
+        window.addEventListener('keyup', handleKeyDown);
+
+        return () => {
+            window.removeEventListener('keyup', handleKeyDown);
+        };
+    }, [handleInput]);
 
     function generateTodaysWord() {
         const today = new Date();
@@ -74,7 +56,7 @@ export function TdleProvider({ children }: { children: ReactNode }) {
                 if (guess === todaysWord) {
                     setMessage("You Guessed it Right :)")
                 } else if (guessIndex === 5) {
-                    setMessage("Oops! Better Luck Next Time.")
+                    setMessage(`Oops! Better Luck Next Time. The word was ${todaysWord.toUpperCase()}`)
                 } else {
                     setMessage(`${5 - guessIndex} tries remaining...`)
                 }
@@ -86,16 +68,36 @@ export function TdleProvider({ children }: { children: ReactNode }) {
         }
     }
 
-    function hasChar(char: string, idx: number) {
-        if (idx < guessIndex) {
-            return todaysWord.includes(char)
+    function allGuesses() {
+        return guesses.slice(0, guessIndex).join("").toLowerCase().split("")
+    }
+
+    function hasChar(char: string, idx: number, isKeyChar?: boolean) {
+        if (isKeyChar) {
+            return todaysWord.includes(char) && allGuesses().includes(char)
+        } else {
+            if (idx < guessIndex) {
+                return todaysWord.includes(char)
+            }
         }
         return false
     }
 
-    function sameChar(char: string, i: number, idx: number) {
-        if (idx < guessIndex && todaysWord) {
-            return todaysWord[i] === char
+    function sameChar(char: string, i: number, idx: number, isKeyChar?: boolean) {
+        if (isKeyChar) {
+            return guesses.slice(0, guessIndex).map((guess) => {
+                let result = false;
+                if (guess.includes(char)) {
+                    result = result || (guess.indexOf(char) === todaysWord.indexOf(char))
+                }
+                return result;
+            }).some((value) => {
+                if (value) return true
+            })
+        } else {
+            if (idx < guessIndex && todaysWord) {
+                return todaysWord[i] === char
+            }
         }
         return false;
     }
@@ -110,7 +112,7 @@ export function TdleProvider({ children }: { children: ReactNode }) {
 
     function loss() {
         if (guessIndex === 6) {
-            setMessage("Oops! Better Luck Next Time.")
+            setMessage(`Oops! Better Luck Next Time. The word was ${todaysWord.toUpperCase()}`)
             return true
         }
         return false
