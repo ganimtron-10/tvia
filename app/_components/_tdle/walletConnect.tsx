@@ -37,7 +37,8 @@ export default function WalletConnect() {
     return (
         <WagmiProvider config={config}>
             <QueryClientProvider client={queryClient}>
-                <ConnectWallet />
+                {/* <ConnectWallet /> */}
+                <Tdle/>
             </QueryClientProvider>
         </WagmiProvider>
     )
