@@ -1,31 +1,3 @@
-// import { useState, createContext, useContext, ReactNode } from "react";
-// import Tdle from "./tdle";
-// import { Root } from "postcss";
-
-// interface TdleContextType {
-//     curmessage: string
-//     setCurGuess: (newState: string) => void;
-//     guesses: Array<string>
-//     setGuesses: (newState: Array<string>) => void;
-//     guessIndex: number
-//     setGuessIndexrent: (newState: number) => void;
-// }
-
-// const TdleContext = createContext(null);
-
-// export function TdleProvider({ children }: { children: ReactNode }) {
-//     const [message, setCurGuess] = useState('');
-//     const [guesses, setGuesses] = useState([]);
-//     const [guessIndex, setGuessIndex] = useState(0);
-
-//     const value: TdleContextType = { message, setCurGuess, guesses, setGuesses, guessIndex, setGuessIndex }
-//     return <TdleContext.Provider value={value}>
-//         {children}
-//     </TdleContext.Provider>
-// }
-
-// export const useTdleContext = () => useContext(TdleContext);
-
 'use client'
 
 import { useState, createContext, useContext, ReactNode, useEffect } from "react";
