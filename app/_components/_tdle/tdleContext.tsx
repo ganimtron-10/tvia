@@ -3,6 +3,11 @@
 import { useState, createContext, useContext, ReactNode, useEffect } from "react";
 import validWords from './validWords.json'
 import crypto from 'crypto';
+import { useAccount, useReadContract, useWaitForTransactionReceipt, useWriteContract } from 'wagmi'
+
+const CONTRACT_ABI = JSON.parse(process.env.NEXT_PUBLIC_CONTRACT_ABI as string)
+const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as string
+const UNIQUE_IDENTIFIER = process.env.NEXT_PUBLIC_UNIQUE_IDENTIFIER as string
 
 interface TdleContextType {
     message: string;
@@ -14,16 +19,36 @@ interface TdleContextType {
     handleInput: (key: string) => void;
     hasChar: (char: string, idx: number, isKeyChar?: boolean) => boolean;
     sameChar: (char: string, i: number, idx: number, isKeyChar?: boolean) => boolean;
+    UNIQUE_IDENTIFIER: string;
+    CONTRACT_ADDRESS: string;
+    CONTRACT_ABI: string;
+    showRewardBtn: boolean;
+    todaysWord: string;
+    setShowRewardBtn: (newState: boolean) => void;
 }
+
+interface GameData {
+    stateMessage: string
+    stateGuesses: string[]
+    stateGuessIndex: number
+    stateTodaysWord: string
+}
+
 
 const TdleContext = createContext<TdleContextType | null>(null);
 
 export function TdleProvider({ children }: { children: ReactNode }) {
 
+    // const { data: hash, error, isPending, status, writeContract } = useWriteContract()
+    // const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash, })
+    // const { address: accountAddress } = useAccount()
+
     const [message, setMessage] = useState('');
     const [guesses, setGuesses] = useState<string[]>(Array(6).fill(''));
     const [guessIndex, setGuessIndex] = useState(0);
     const todaysWord = generateTodaysWord();
+    // const [fetchGameData, setFetchGameData] = useState(false)
+    const [showRewardBtn, setShowRewardBtn] = useState(false);
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -36,6 +61,62 @@ export function TdleProvider({ children }: { children: ReactNode }) {
             window.removeEventListener('keyup', handleKeyDown);
         };
     }, [handleInput]);
+
+    function getTodaysMidnightTimeStamp() {
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        return now.getTime() / 1000;
+    }
+
+    // function FetchGameData() {
+    //     if (!fetchGameData) {
+    //         const { data, failureReason, isSuccess } = useReadContract({
+    //             abi: CONTRACT_ABI,
+    //             address: CONTRACT_ADDRESS as any,
+    //             functionName: 'getGameDataByAddressAndDay',
+    //             account: accountAddress as any,
+    //             args: [getTodaysMidnightTimeStamp()]
+    //         })
+
+    //         console.log(data, isSuccess, failureReason?.shortMessage);
+
+    //         if (isSuccess) {
+    //             setMessage((data as GameData).stateMessage)
+    //             setGuesses((data as GameData).stateGuesses)
+    //             setGuessIndex((data as GameData).stateGuessIndex)
+
+    //             setFetchGameData(true)
+    //         } else {
+    //             setMessage(failureReason?.shortMessage ? failureReason?.shortMessage : "")
+    //         }
+    //     }
+    // }
+
+    // function AddGameData(rewardAmount: number) {
+
+    //     console.log("Adding Game Data")
+
+    //     writeContract({
+    //         abi: CONTRACT_ABI,
+    //         address: CONTRACT_ADDRESS as any,
+    //         functionName: 'creditPlayer',
+    //         args: [UNIQUE_IDENTIFIER, getTodaysMidnightTimeStamp(), JSON.stringify({ stateMessage: message, stateGuesses: guesses, stateGuessIndex: guessIndex, stateTodaysWord: todaysWord }), rewardAmount]
+    //     })
+
+    //     // const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash, })
+
+    //     console.log(hash, isPending, status)
+    //     console.log(isConfirming, isConfirmed)
+    //     console.log(error?.message)
+
+    // }
+
+
+
+
+
+
+
 
     function generateTodaysWord() {
         const today = new Date();
@@ -55,8 +136,11 @@ export function TdleProvider({ children }: { children: ReactNode }) {
 
                 if (guess === todaysWord) {
                     setMessage("You Guessed it Right :)")
+                    setShowRewardBtn(true)
+                    // AddGameData(10)
                 } else if (guessIndex === 5) {
-                    setMessage(`Oops! Better Luck Next Time. The word was ${todaysWord.toUpperCase()}`)
+                    setMessage(`Oops! Better Luck Next Time. The word was "${todaysWord.toUpperCase()}".`)
+                    // AddGameData(0)
                 } else {
                     setMessage(`${5 - guessIndex} tries remaining...`)
                 }
@@ -112,7 +196,7 @@ export function TdleProvider({ children }: { children: ReactNode }) {
 
     function loss() {
         if (guessIndex === 6) {
-            setMessage(`Oops! Better Luck Next Time. The word was ${todaysWord.toUpperCase()}`)
+            setMessage(`Oops! Better Luck Next Time. The word was "${todaysWord.toUpperCase()}".`)
             return true
         }
         return false
@@ -149,7 +233,13 @@ export function TdleProvider({ children }: { children: ReactNode }) {
         setGuessIndex,
         handleInput,
         hasChar,
-        sameChar
+        sameChar,
+        UNIQUE_IDENTIFIER,
+        CONTRACT_ADDRESS,
+        CONTRACT_ABI,
+        showRewardBtn,
+        todaysWord,
+        setShowRewardBtn
     };
 
     return (
