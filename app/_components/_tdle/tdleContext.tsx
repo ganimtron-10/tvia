@@ -28,11 +28,9 @@
 
 'use client'
 
-import { useState, createContext, useContext, ReactNode, useEffect, EventHandler } from "react";
+import { useState, createContext, useContext, ReactNode, useEffect } from "react";
 import validWords from './validWords.json'
-import { trace } from "console";
 import crypto from 'crypto';
-import { toASCII } from "punycode";
 
 interface TdleContextType {
     message: string;
@@ -86,7 +84,7 @@ export function TdleProvider({ children }: { children: ReactNode }) {
                 if (guess === todaysWord) {
                     setMessage("You Guessed it Right :)")
                 } else if (guessIndex === 5) {
-                    setMessage("Oops! Better Luck Next Time.")
+                    setMessage(`Oops! Better Luck Next Time. The word was ${todaysWord.toUpperCase()}`)
                 } else {
                     setMessage(`${5 - guessIndex} tries remaining...`)
                 }
@@ -122,7 +120,7 @@ export function TdleProvider({ children }: { children: ReactNode }) {
 
     function loss() {
         if (guessIndex === 6) {
-            setMessage("Oops! Better Luck Next Time.")
+            setMessage(`Oops! Better Luck Next Time. The word was ${todaysWord.toUpperCase()}`)
             return true
         }
         return false
