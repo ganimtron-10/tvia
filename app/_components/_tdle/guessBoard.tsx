@@ -1,5 +1,3 @@
-'use client'
-
 import CharRow from "./charRow"
 import { useTdleContext } from "./tdleContext"
 

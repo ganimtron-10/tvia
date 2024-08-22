@@ -12,8 +12,8 @@ interface TdleContextType {
     guessIndex: number;
     setGuessIndex: (newState: number) => void;
     handleInput: (key: string) => void;
-    hasChar: (char: string, idx: number) => boolean;
-    sameChar: (char: string, i: number, idx: number) => boolean;
+    hasChar: (char: string, idx: number, isKeyChar?: boolean) => boolean;
+    sameChar: (char: string, i: number, idx: number, isKeyChar?: boolean) => boolean;
 }
 
 const TdleContext = createContext<TdleContextType | null>(null);
@@ -68,16 +68,36 @@ export function TdleProvider({ children }: { children: ReactNode }) {
         }
     }
 
-    function hasChar(char: string, idx: number) {
-        if (idx < guessIndex) {
-            return todaysWord.includes(char)
+    function allGuesses() {
+        return guesses.slice(0, guessIndex).join("").toLowerCase().split("")
+    }
+
+    function hasChar(char: string, idx: number, isKeyChar?: boolean) {
+        if (isKeyChar) {
+            return todaysWord.includes(char) && allGuesses().includes(char)
+        } else {
+            if (idx < guessIndex) {
+                return todaysWord.includes(char)
+            }
         }
         return false
     }
 
-    function sameChar(char: string, i: number, idx: number) {
-        if (idx < guessIndex && todaysWord) {
-            return todaysWord[i] === char
+    function sameChar(char: string, i: number, idx: number, isKeyChar?: boolean) {
+        if (isKeyChar) {
+            return guesses.slice(0, guessIndex).map((guess) => {
+                let result = false;
+                if (guess.includes(char)) {
+                    result = result || (guess.indexOf(char) === todaysWord.indexOf(char))
+                }
+                return result;
+            }).some((value) => {
+                if (value) return true
+            })
+        } else {
+            if (idx < guessIndex && todaysWord) {
+                return todaysWord[i] === char
+            }
         }
         return false;
     }
