@@ -1,8 +1,16 @@
 'use client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { WagmiProvider, useAccount, useConnect } from 'wagmi'
-import { config } from './config'
+import { metadata, config, projectId } from './config'
 import Tdle from './tdle'
+import { createWeb3Modal } from '@web3modal/wagmi/react'
+
+
+createWeb3Modal({
+    metadata,
+    wagmiConfig: config,
+    projectId,
+})
 
 const queryClient = new QueryClient()
 
@@ -38,7 +46,7 @@ export default function WalletConnect() {
         <WagmiProvider config={config}>
             <QueryClientProvider client={queryClient}>
                 {/* <ConnectWallet /> */}
-                <Tdle/>
+                <Tdle />
             </QueryClientProvider>
         </WagmiProvider>
     )

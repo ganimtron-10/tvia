@@ -26,7 +26,7 @@ export default function RewardButton() {
                 abi: CONTRACT_ABI as any,
                 address: CONTRACT_ADDRESS as any,
                 functionName: 'creditPlayer',
-                args: [UNIQUE_IDENTIFIER, 1, JSON.stringify({ stateMessage: message, stateGuesses: guesses, stateGuessIndex: guessIndex, stateTodaysWord: todaysWord }), rewardAmount]
+                args: [UNIQUE_IDENTIFIER, getTodaysMidnightTimeStamp(), JSON.stringify({ stateMessage: message, stateGuesses: guesses, stateGuessIndex: guessIndex, stateTodaysWord: todaysWord }), rewardAmount]
             })
 
             // const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash, })
@@ -39,7 +39,7 @@ export default function RewardButton() {
 
             if (error) {
                 if (error?.message.includes("You have already played todays Game!")) {
-                    setMessage("Hurray! You received the reward.")
+                    setMessage("Hurray! You already received the reward.")
                 } else {
                     setMessage("Some unexpected Error occured")
                 }
