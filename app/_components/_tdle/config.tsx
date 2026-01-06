@@ -23,7 +23,29 @@ export const metadata = {
     icons: ['https://avatars.githubusercontent.com/u/37784886']
 }
 
-const chains = [arbitrumSepolia] as const
+const openCampusCodex = {
+    id: '656476',
+    name: 'Open Campus Codex',
+    nativeCurrency: {
+        name: 'Open Campus EDU ',
+        symbol: 'EDU',
+        decimals: 18,
+    },
+    rpcUrls: {
+        default: {
+            http: ['https://rpc.open-campus-codex.gelato.digital'],
+        },
+    },
+    blockExplorers: {
+        default: {
+            name: 'Open Campus Codex',
+            url: 'https://opencampus-codex.blockscout.com',
+        },
+    },
+    testnet: true,
+}
+
+const chains = [arbitrumSepolia, openCampusCodex] as const
 export const config = defaultWagmiConfig({
     chains,
     projectId,
